@@ -1,0 +1,17 @@
+services:
+  db:
+    image: postgres:16
+    container_name: larpeak_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: larpeak
+      POSTGRES_PASSWORD: larpeak_pass
+      POSTGRES_DB: larpeak
+    ports:
+      - "5433:5432"
+    volumes:
+      - larpeak_data:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+
+volumes:
+  larpeak_data:
