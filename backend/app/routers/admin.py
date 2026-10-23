@@ -2,8 +2,9 @@ import asyncpg
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.db import get_conn
+from app.deps import require_role
 
-router = APIRouter(prefix="/admin", tags=["admin"])
+router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(require_role("admin"))])
 
 #endpoints /admin/users /admin/users/{user_id} /admin/roles
 
