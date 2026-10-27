@@ -44,7 +44,7 @@ async def register(body: RegisterIn, conn: asyncpg.Connection = Depends(get_conn
                 user_id, body.role,
             )
     except asyncpg.UniqueViolationError:
-        raise HTTPException(409, "Пользователь с таким email уже существует")
+        raise HTTPException(409, "A user with this email already exists")
     return {"id": user_id, "email": body.email.lower(), "role": body.role}
 
 @router.post("/login")
@@ -54,9 +54,9 @@ async def login(body: LoginIn, conn: asyncpg.Connection = Depends(get_conn)):
         body.email.lower(),
     )
     if row is None or not await verify_password(body.password, row["password"]):
-        raise HTTPException(401, "Неверный email или пароль")
+        raise HTTPException(401, "Incorrect email or password")
     if not row["is_active"]:
-        raise HTTPException(403, "Учётная запись деактивирована")
+        raise HTTPException(403, "Account deactivated")
 
     await conn.execute("UPDATE users SET last_login = now() WHERE id = $1", row["id"])
     return {"access_token": create_access_token(row["id"]), "token_type": "bearer"}

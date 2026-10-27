@@ -21,7 +21,7 @@ async def get_user_by_id(user_id: int, conn: asyncpg.Connection = Depends(get_co
         "SELECT id, email, first_name, last_name, bio, date_joined, last_login, is_active FROM users where id = $1", user_id
     )
     if row is None:
-        raise HTTPException(status_code=404, detail="Пользователь не найден")
+        raise HTTPException(status_code=404, detail="User not found")
     return dict(row)
 
 

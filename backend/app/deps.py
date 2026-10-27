@@ -14,11 +14,11 @@ async def get_current_user(
     conn: asyncpg.Connection = Depends(get_conn),
 ):
     if creds is None:
-        raise HTTPException(401, "Требуется авторизация")
+        raise HTTPException(401, "Authorization required")
     try:
         user_id = decode_access_token(creds.credentials)
     except (jwt.PyJWTError, KeyError, ValueError):
-        raise HTTPException(401, "Недействительный токен")
+        raise HTTPException(401, "Invalid token")
 
     row = await conn.fetchrow(
         """
@@ -33,13 +33,13 @@ async def get_current_user(
         user_id,
     )
     if row is None or not row["is_active"]:
-        raise HTTPException(401, "Пользователь не найден или деактивирован")
+        raise HTTPException(401, "User not found or deactivated")
     return dict(row)
 
 
 def require_role(*roles: str):
     async def checker(user: dict = Depends(get_current_user)):
         if not set(roles) & set(user["roles"]):
-            raise HTTPException(403, "Недостаточно прав")
+            raise HTTPException(403, "Insufficient permissions")
         return user
     return checker
