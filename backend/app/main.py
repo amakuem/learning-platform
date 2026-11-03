@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.db import create_pool
-from app.routers import auth, admin, courses, learning
+from app.routers import auth, admin, courses, learning, quizzes
 
 
 @asynccontextmanager
@@ -28,3 +28,4 @@ app.include_router(auth.router)
 app.include_router(admin.router)
 app.include_router(courses.router)
 app.include_router(learning.router)
+app.include_router(quizzes.router)
