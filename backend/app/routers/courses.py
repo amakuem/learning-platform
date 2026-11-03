@@ -98,7 +98,7 @@ async def get_course(course_id: int, conn: asyncpg.Connection = Depends(get_conn
         course_id,
     )
     if course is None:
-        raise HTTPException(404, "Курс не найден")
+        raise HTTPException(404, "Course not found")
 
     rows = await conn.fetch(
         """

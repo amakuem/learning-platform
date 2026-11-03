@@ -12,6 +12,7 @@ services:
     volumes:
       - larpeak_data:/var/lib/postgresql/data
       - ./db/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql
 
 volumes:
   larpeak_data:
