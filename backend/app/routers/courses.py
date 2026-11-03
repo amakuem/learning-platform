@@ -81,7 +81,7 @@ async def list_courses(
 
 
 @router.get("/courses/{course_id}")
-async def get_course_by_id(course_id: int, conn: asyncpg.Connection = Depends(get_conn)):
+async def get_course(course_id: int, conn: asyncpg.Connection = Depends(get_conn)):
     course = await conn.fetchrow(
         """
         SELECT c.id, c.title, c.description, c.price, c.level, c.created_at,
@@ -97,7 +97,43 @@ async def get_course_by_id(course_id: int, conn: asyncpg.Connection = Depends(ge
         """,
         course_id,
     )
-    if course in None:
-        raise HTTPException(404, "Course not found")
+    if course is None:
+        raise HTTPException(404, "Курс не найден")
+
+    rows = await conn.fetch(
+        """
+        SELECT m.id AS module_id, m.title AS module_title,
+               m.description AS module_description, m.order_in_course,
+               l.id AS lesson_id, l.title AS lesson_title,
+               l.duration, l.order_in_module
+        FROM modules m
+        LEFT JOIN lessons l ON l.module_id = m.id
+        WHERE m.course_id = $1
+        ORDER BY m.order_in_course, l.order_in_module
+        """,
+        course_id,
+    )
+
+    modules: dict[int, dict] = {}
+    for r in rows:
+        mod = modules.setdefault(r["module_id"], {
+            "id": r["module_id"],
+            "title": r["module_title"],
+            "description": r["module_description"],
+            "order": r["order_in_course"],
+            "lessons": [],
+        })
+        if r["lesson_id"] is not None:
+            mod["lessons"].append({
+                "id": r["lesson_id"],
+                "title": r["lesson_title"],
+                "duration": r["duration"],
+                "order": r["order_in_module"],
+            })
+
+    result = dict(course)
+    result["modules"] = list(modules.values())
+    return result
+
 
     
