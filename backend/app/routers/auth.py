@@ -23,7 +23,7 @@ class LoginIn(BaseModel):
     email: EmailStr
     password: str
 
-@router.post("/registr", status_code=201)
+@router.post("/register", status_code=201)
 async def register(body: RegisterIn, conn: asyncpg.Connection = Depends(get_conn)):
     pwd_hash = await hash_password(body.password)
     try:

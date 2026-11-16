@@ -1,0 +1,226 @@
+
+/* Основной фон страницы */
+.platform-page {
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 100%);
+}
+
+.platform-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 64px;
+  padding: 12px 20px;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.platform-brand {
+  color: #172554;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.platform-main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px 20px;
+}
+
+/* Карточка авторизации */
+.login-card {
+  width: 100%;
+  max-width: 430px;
+  padding: 40px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  box-shadow: 0 15px 50px rgba(15, 23, 42, 0.08);
+}
+
+/* Заголовок */
+.login-title {
+  margin: 0 0 10px;
+  text-align: center;
+  color: #172554;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.login-subtitle {
+  margin: 0 0 30px;
+  text-align: center;
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* Форма */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Группы полей */
+.login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.login-field {
+  min-width: 0;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Поля ввода */
+.login-input {
+  width: 100%;
+  padding: 14px 15px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  outline: none;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 15px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.login-input::placeholder {
+  color: #64748b;
+}
+
+.login-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* Кнопка входа */
+.login-button {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.login-button:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.login-button:active {
+  transform: translateY(0);
+}
+
+.login-button:disabled {
+  background: #93aeea;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Ошибка авторизации */
+.login-error {
+  margin: 0;
+  padding: 11px 13px;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 14px;
+}
+
+/* Ссылка на регистрацию */
+.login-footer {
+  margin-top: 25px;
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.login-footer a {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-footer a:hover {
+  text-decoration: underline;
+}
+
+.home-card {
+  max-width: 540px;
+}
+
+.home-actions,
+.register-name-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.home-actions .login-button {
+  margin-top: 0;
+}
+
+.secondary-button {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.secondary-button:hover {
+  background: #dbeafe;
+}
+
+.register-card {
+  max-width: 510px;
+}
+
+/* Мобильная адаптация */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 28px 22px;
+    border-radius: 16px;
+  }
+
+  .login-title {
+    font-size: 26px;
+  }
+
+  .platform-main {
+    padding: 15px;
+  }
+
+  .home-actions,
+  .register-name-fields {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-input,
+  .login-button {
+    transition: none;
+  }
+
+  .login-button:hover {
+    transform: none;
+  }
+}
