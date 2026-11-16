@@ -1,32 +1,35 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { coursePageSize, getCourses, type CourseSummary } from "../api/courses";
+import { Link } from "react-router-dom";
+import { courseLevels, coursePageSize, getCourses, type CourseFilters } from "../api/courses";
+import CatalogFilters from "./CatalogFilters";
 import PageLayout from "./PageLayout";
+import { formatCoursePrice } from "./coursePrice";
 import "./home.css";
-
-const levelNames: Record<CourseSummary["level"], string> = {
-  beginner: "Начальный",
-  intermediate: "Средний",
-  advanced: "Продвинутый",
-};
 
 function Home() {
   const [page, setPage] = useState(0);
+  const [filters, setFilters] = useState<CourseFilters>({});
   const offset = page * coursePageSize;
   const courses = useQuery({
-    queryKey: ["courses", offset],
-    queryFn: ({ signal }) => getCourses(offset, signal),
+    queryKey: ["courses", filters, offset],
+    queryFn: ({ signal }) => getCourses(offset, signal, filters),
     retry: false,
   });
   const data = courses.data;
+  const hasFilters = Boolean(filters.search || filters.category_id || filters.level ||
+    filters.price_min !== undefined || filters.price_max !== undefined);
 
   return (
     <PageLayout catalog>
       <section id="courses" aria-labelledby="catalog-title">
         <div className="catalog-heading">
           <h1 id="catalog-title">Каталог курсов</h1>
-          <p>Выберите курс по теме и уровню подготовки.</p>
         </div>
+        <CatalogFilters onApply={(nextFilters) => {
+          setFilters(nextFilters);
+          setPage(0);
+        }} />
 
         {courses.isPending && <p className="catalog-state" role="status">Загружаем курсы…</p>}
         {courses.isError && (
@@ -39,20 +42,26 @@ function Home() {
         )}
         {data && (
           <>
+            {data.items.length > 0 && (
+              <p className="catalog-results" role="status">Найдено курсов: {data.total}</p>
+            )}
             {data.items.length === 0 ? (
               <p className="catalog-state" role="status">
-                {page === 0 ? "Опубликованных курсов пока нет." : "На этой странице больше нет курсов."}
+                {page === 0 && !hasFilters ? "Опубликованных курсов пока нет." : "По этим параметрам курсы не найдены."}
               </p>
             ) : (
               <ul className="course-grid">
                 {data.items.map((course) => (
                   <li className="course-card" key={course.id}>
                     <span className="course-category">{course.category_name}</span>
-                    <h2>{course.title}</h2>
+                    <h2><Link className="course-card-link" to={`/courses/${course.id}`}>{course.title}</Link></h2>
                     {course.description && <p className="course-description">{course.description}</p>}
                     <div className="course-meta">
-                      <span>{levelNames[course.level]}</span>
                       <span>{course.instructor_name}</span>
+                      {course.level && <span>{courseLevels[course.level]}</span>}
+                      {course.price !== null && (
+                        <strong>{formatCoursePrice(course.price)}</strong>
+                      )}
                     </div>
                   </li>
                 ))}

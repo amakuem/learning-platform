@@ -1,12 +1,13 @@
 
 import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import PageLayout from "./PageLayout";
 
 function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { state } = useLocation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,7 +21,10 @@ function Login() {
 
     try {
       await login(email, password);
-      navigate("/");
+      const courseId = state?.courseId;
+      navigate(Number.isSafeInteger(courseId) && courseId > 0 ? `/courses/${courseId}` : "/", {
+        replace: true,
+      });
     } catch {
       setError("Неверный email или пароль");
     } finally {

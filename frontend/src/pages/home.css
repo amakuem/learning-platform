@@ -1,0 +1,370 @@
+.platform-header-wide,
+.catalog-main {
+  width: min(100%, 1120px);
+  margin-inline: auto;
+}
+
+.platform-header-wide,
+.platform-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+}
+
+.platform-header-wide {
+  justify-content: space-between;
+}
+
+.platform-nav a,
+.platform-nav button,
+.catalog-button {
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: #1d4ed8;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.platform-nav a:hover,
+.platform-nav button:hover,
+.catalog-button:hover {
+  background: #eff6ff;
+}
+
+.platform-nav .platform-nav-primary {
+  background: #2563eb;
+  color: #fff;
+}
+
+.platform-nav .platform-nav-primary:hover {
+  background: #1d4ed8;
+}
+
+.catalog-main {
+  padding: clamp(28px, 6vw, 68px) 20px;
+}
+
+.catalog-heading {
+  margin-bottom: 28px;
+}
+
+.catalog-heading h1 {
+  margin: 0 0 8px;
+  font-size: clamp(30px, 5vw, 48px);
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+}
+
+.catalog-results {
+  margin: 0 0 14px;
+  color: #475569;
+}
+
+.catalog-filters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.catalog-filters label {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.catalog-filters input,
+.catalog-filters select {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #172554;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.catalog-search {
+  grid-column: span 2;
+}
+
+.catalog-filter-actions,
+.catalog-filter-feedback {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.catalog-filter-actions {
+  align-self: end;
+}
+
+.catalog-filter-feedback {
+  grid-column: 1 / -1;
+}
+
+.course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.course-card,
+.catalog-state {
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #fff;
+  overflow-wrap: anywhere;
+}
+
+.course-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 6px 20px rgb(15 23 42 / 5%);
+}
+
+.course-card:hover {
+  border-color: #93b4fa;
+}
+
+.course-card-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.course-card-link::after {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  content: "";
+}
+
+.course-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.course-detail .catalog-heading h1 {
+  margin-top: 8px;
+  overflow-wrap: anywhere;
+}
+
+.course-detail .course-meta {
+  justify-content: flex-start;
+}
+
+.course-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+  align-items: start;
+  gap: 20px;
+}
+
+.course-detail-content {
+  display: grid;
+  gap: 20px;
+}
+
+.course-detail-description {
+  margin: 0;
+  color: #475569;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.course-detail-content h2,
+.course-modules h3 {
+  margin: 0 0 8px;
+}
+
+.course-modules {
+  margin-bottom: 0;
+  padding-left: 24px;
+}
+
+.course-modules > li + li {
+  margin-top: 18px;
+}
+
+.course-modules ul {
+  padding-left: 20px;
+}
+
+.course-enrollment {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+}
+
+.course-enrollment p {
+  margin: 0;
+}
+
+.course-price {
+  font-size: 26px;
+}
+
+.course-category {
+  color: #1d4ed8;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.course-card h2 {
+  margin: 10px 0 12px;
+  color: #172554;
+  font-size: 21px;
+  line-height: 1.25;
+}
+
+.course-description,
+.catalog-state p {
+  margin: 0 0 16px;
+  color: #475569;
+}
+
+.course-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 12px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 13px;
+}
+
+.catalog-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.catalog-button {
+  border-color: #cbd5e1;
+  background: #fff;
+}
+
+.catalog-button:disabled {
+  color: #64748b;
+  background: #f8fafc;
+  cursor: default;
+}
+
+.catalog-button.catalog-apply {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: #fff;
+}
+
+.catalog-button.catalog-apply:hover {
+  background: #1d4ed8;
+}
+
+.catalog-button.catalog-danger:not(:disabled) {
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+
+.catalog-button.catalog-danger:hover:not(:disabled) {
+  border-color: #fca5a5;
+  background: #fef2f2;
+}
+
+.catalog-button.catalog-danger-solid:not(:disabled) {
+  border-color: #b91c1c;
+  background: #b91c1c;
+  color: #fff;
+}
+
+.catalog-button.catalog-danger-solid:hover:not(:disabled) {
+  border-color: #991b1b;
+  background: #991b1b;
+}
+
+.unsubscribe-dialog {
+  width: min(420px, calc(100% - 32px));
+  padding: clamp(20px, 5vw, 28px);
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #fff;
+  color: #172554;
+  box-shadow: 0 20px 60px rgb(15 23 42 / 22%);
+}
+
+.unsubscribe-dialog::backdrop {
+  background: rgb(15 23 42 / 50%);
+}
+
+.unsubscribe-dialog h2 {
+  margin: 0 0 8px;
+  font-size: 22px;
+}
+
+.unsubscribe-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+@media (max-width: 850px) {
+  .course-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .course-enrollment {
+    grid-row: 1;
+  }
+
+  .catalog-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 540px) {
+  .platform-header-wide {
+    justify-content: center;
+  }
+
+  .platform-nav {
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .catalog-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .catalog-search {
+    grid-column: auto;
+  }
+}

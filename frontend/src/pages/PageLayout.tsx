@@ -1,14 +1,15 @@
 import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "./login.css";
 
 function CatalogNavigation() {
   const { user, loading, logout } = useAuth();
+  const { pathname } = useLocation();
 
   return (
     <nav className="platform-nav" aria-label="Основная навигация">
-      <a href="#courses">Курсы</a>
+      {pathname === "/" ? <a href="#courses">Курсы</a> : <Link to="/">Курсы</Link>}
       {!loading && (user ? (
         <button type="button" onClick={logout}>Выйти</button>
       ) : (

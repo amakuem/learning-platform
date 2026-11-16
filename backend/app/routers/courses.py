@@ -10,7 +10,7 @@ router = APIRouter(tags=["courses"])
 #endpoints /cateories /courses /courses/{course_id}
 
 SORT_MAP = {
-    "newest": "c.created_at DESC",
+    "newest": "c.created_at DESC, c.id DESC",
     "price_asc": "c.price ASC, c.id",
     "price_desc": "c.price DESC, c.id",
     "popular": "students DESC, c.id",
