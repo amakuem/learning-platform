@@ -36,6 +36,23 @@
   background: #eff6ff;
 }
 
+.platform-nav a[aria-current="page"] {
+  background: #eff6ff;
+}
+
+.my-courses-section h2 {
+  margin: 0 0 16px;
+}
+
+.my-courses-section + .my-courses-section {
+  margin-top: 28px;
+}
+
+.my-courses-section h3 {
+  margin: 0 0 4px;
+  overflow-wrap: anywhere;
+}
+
 .platform-nav .platform-nav-primary {
   background: #2563eb;
   color: #fff;

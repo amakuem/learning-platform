@@ -67,9 +67,17 @@ export const getCourse = async (id: number, signal?: AbortSignal) => {
 };
 
 export const getMyEnrollments = async (signal?: AbortSignal) => {
-  const response = await api.get<{ course_id: number }[]>("/me/enrollments", { signal });
+  const response = await api.get<{ course_id: number; title: string }[]>("/me/enrollments", { signal });
   return response.data;
 };
+
+export async function getInstructorCourses(signal?: AbortSignal) {
+  const response = await api.get<{ id: number; title: string; is_published: boolean }[]>(
+    "/instructor/courses",
+    { signal },
+  );
+  return response.data;
+}
 
 export async function updateEnrollment(courseId: number, enroll: boolean) {
   const path = `/courses/${courseId}/enroll`;

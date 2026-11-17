@@ -9,6 +9,23 @@ export interface User {
   roles: string[];
 }
 
+export interface UserProfile extends User {
+  bio: string | null;
+  date_joined: string | null;
+}
+
+export async function getProfile(signal?: AbortSignal) {
+  const response = await api.get<UserProfile>("/me", { signal });
+  return response.data;
+}
+
+export type ProfileUpdate = Partial<Pick<UserProfile, "first_name" | "last_name" | "email" | "bio">>;
+
+export async function updateProfile(changes: ProfileUpdate) {
+  const response = await api.patch<UserProfile>("/me", changes);
+  return response.data;
+}
+
 interface LoginResponse {
   access_token: string;
   token_type: string;

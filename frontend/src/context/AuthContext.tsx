@@ -16,6 +16,7 @@ import {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  syncUser: (updatedUser: User) => void;
   login: (email: string, password: string) => Promise<void>;
   register: (data: {
     email: string;
@@ -32,6 +33,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+
+  function syncUser(updatedUser: User) {
+    setUser((current) => current?.id === updatedUser.id ? updatedUser : current);
+  }
 
   // Проверяем авторизацию при запуске приложения
   useEffect(() => {
@@ -89,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, register, logout }}
+      value={{ user, loading, syncUser, login, register, logout }}
     >
       {children}
     </AuthContext.Provider>

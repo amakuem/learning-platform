@@ -1,0 +1,124 @@
+.profile-panel {
+  max-width: 800px;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 12px 36px rgb(15 23 42 / 7%);
+  overflow-wrap: anywhere;
+}
+
+.profile-banner,
+.profile-details {
+  padding: clamp(20px, 4vw, 32px);
+}
+
+.profile-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  border-radius: 19px 19px 0 0;
+  border-bottom: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, #e8efff, #f8fafc);
+}
+
+.profile-avatar {
+  display: grid;
+  flex: 0 0 60px;
+  min-height: 60px;
+  place-items: center;
+  border-radius: 16px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.profile-identity {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+
+.profile-identity h2 {
+  margin: 0;
+  font-size: clamp(20px, 4vw, 28px);
+  line-height: 1.2;
+}
+
+.profile-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.profile-roles li {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #1e40af;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.profile-details h2 {
+  margin: 0 0 16px;
+  font-size: 20px;
+}
+
+.profile-details dl {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+
+.profile-details dl > div {
+  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.profile-details dt {
+  color: #475569;
+  font-size: 14px;
+}
+
+.profile-details dd {
+  margin: 3px 0 0;
+}
+
+.profile-bio {
+  white-space: pre-wrap;
+}
+
+.profile-fields {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.profile-fields textarea {
+  font: inherit;
+  resize: vertical;
+}
+
+.profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.profile-success {
+  margin: 0 0 16px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #ecfdf5;
+  color: #166534;
+}

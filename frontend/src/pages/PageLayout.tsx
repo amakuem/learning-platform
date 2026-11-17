@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "./login.css";
 
@@ -11,7 +11,13 @@ function CatalogNavigation() {
     <nav className="platform-nav" aria-label="Основная навигация">
       {pathname === "/" ? <a href="#courses">Курсы</a> : <Link to="/">Курсы</Link>}
       {!loading && (user ? (
-        <button type="button" onClick={logout}>Выйти</button>
+        <>
+          {(user.roles.includes("student") || user.roles.includes("instructor")) && (
+            <NavLink to="/my-courses">Мои курсы</NavLink>
+          )}
+          <NavLink to="/profile">Профиль</NavLink>
+          <button type="button" onClick={logout}>Выйти</button>
+        </>
       ) : (
         <>
           <Link to="/login">Войти</Link>

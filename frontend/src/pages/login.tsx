@@ -22,9 +22,9 @@ function Login() {
     try {
       await login(email, password);
       const courseId = state?.courseId;
-      navigate(Number.isSafeInteger(courseId) && courseId > 0 ? `/courses/${courseId}` : "/", {
-        replace: true,
-      });
+      const accountPath = state?.accountPath;
+      const destination = accountPath === "/profile" || accountPath === "/my-courses" ? accountPath : "/";
+      navigate(Number.isSafeInteger(courseId) && courseId > 0 ? `/courses/${courseId}` : destination, { replace: true });
     } catch {
       setError("Неверный email или пароль");
     } finally {
