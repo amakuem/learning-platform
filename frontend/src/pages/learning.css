@@ -6,10 +6,70 @@
 }
 
 .learning-outline h2,
-.lesson-player h2 {
+.lesson-player h2,
+.lesson-discussion h2 {
   margin: 0 0 16px;
   font-size: 22px;
   line-height: 1.25;
+}
+
+.learning-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+}
+
+.discussion-form {
+  display: grid;
+  gap: 10px;
+}
+
+.discussion-form textarea {
+  font: inherit;
+  resize: vertical;
+}
+
+.discussion-actions,
+.discussion-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 12px;
+}
+
+.lesson-discussion .discussion-empty {
+  margin: 16px 0 0;
+}
+
+.discussion-list {
+  display: grid;
+  gap: 12px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.discussion-comment {
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.discussion-reply {
+  margin-inline-start: clamp(10px, 3vw, 28px);
+  border-inline-start: 3px solid #bfdbfe;
+}
+
+.discussion-meta time,
+.discussion-recipient {
+  color: #475569;
+  font-size: 13px;
+}
+
+.discussion-comment .discussion-text {
+  margin: 8px 0;
+  white-space: pre-wrap;
 }
 
 .learning-progress {

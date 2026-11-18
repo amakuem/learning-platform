@@ -5,6 +5,7 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import { getLearningCourse } from "../api/learning";
 import { useAuth } from "../context/AuthContext";
 import LessonPlayer from "./LessonPlayer";
+import LessonDiscussion from "./LessonDiscussion";
 import PageLayout from "./PageLayout";
 import "./home.css";
 import "./learning.css";
@@ -91,15 +92,17 @@ export default function Learning() {
               ))}
             </nav>
           </aside>
-          <LessonPlayer
-            key={`${user.id}:${selected.id}`}
-            userId={user.id}
-            courseId={id}
-            lesson={selected}
-            requestedStep={Number(search.get("step"))}
-            nextLesson={nextLesson}
-            selectStep={(step) => setSearch({ lesson: String(selected.id), step: String(step) })}
-          />
+          <div className="learning-content" key={`${user.id}:${selected.id}`}>
+            <LessonPlayer
+              userId={user.id}
+              courseId={id}
+              lesson={selected}
+              requestedStep={Number(search.get("step"))}
+              nextLesson={nextLesson}
+              selectStep={(step) => setSearch({ lesson: String(selected.id), step: String(step) })}
+            />
+            <LessonDiscussion lessonId={selected.id} userId={user.id} />
+          </div>
         </div>
       )}
     </PageLayout>

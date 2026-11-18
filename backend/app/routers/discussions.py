@@ -99,7 +99,9 @@ async def create_discussion(
     conn: asyncpg.Connection = Depends(get_conn),
 ):
     await check_lesson_access(conn, lesson_id, user)
-
+    text = body.question_text.strip()
+    if not text:
+        raise HTTPException(422, "Discussion text cannot be blank")
 
     if body.parent_id is not None:
         parent = await conn.fetchrow(
@@ -130,7 +132,7 @@ async def create_discussion(
         RETURNING id, question_text, created_at,
                   user_id, lesson_id, parent_id
         """,
-        body.question_text.strip(),
+        text,
         user["id"],
         lesson_id,
         body.parent_id,
