@@ -63,14 +63,28 @@ def changes(body: BaseModel, nullable: tuple = ()) -> dict:
         if v is not None or k in nullable
     }
 
+async def save_ordered_row(conn, query: str, *args):
+    try:
+        return await conn.fetchrow(query, *args)
+    except asyncpg.UniqueViolationError as error:
+        if error.constraint_name not in {
+            "unique_module_order", "unique_lesson_order", "unique_page_order", "unique_section_order",
+        }:
+            raise
+        raise HTTPException(409, "Эта позиция уже занята. Укажите свободный номер.") from error
+
+
 async def update_row(conn, table: str, pk: str, row_id: int, fields: dict, extra: str = ""):
     if not fields:
         raise HTTPException(400, "Fields for modification have not been provided")
     sets = [f"{col} = ${i}" for i, col in enumerate(fields, 1)]
-    row = await conn.fetchrow(
+    row = await save_ordered_row(
+        conn,
         f"UPDATE {table} SET {', '.join(sets)}{extra} WHERE {pk} = ${len(fields) + 1} RETURNING *",
         *fields.values(), row_id,
     )
+    if row is None:
+        raise HTTPException(404, "Object not found")
     return dict(row)
 
 async def delete_row(conn, table: str, pk: str, row_id: int):
@@ -227,9 +241,15 @@ async def get_my_course(
     await check_owner(conn, "course", course_id, user)
     course = await conn.fetchrow(
         """
-        SELECT id, title, description, price, level, category_id,
-               is_published, created_at, updated_at
-        FROM courses WHERE id = $1
+        SELECT c.id, c.title, c.description, c.price, c.level, c.category_id,
+               c.is_published, c.created_at, c.updated_at,
+               cat.name AS category_name, u.first_name || ' ' || u.last_name AS instructor_name,
+               u.bio AS instructor_bio,
+               (SELECT count(*) FROM enrollments e WHERE e.course_id = c.id) AS students
+        FROM courses c
+        JOIN categories cat ON cat.id = c.category_id
+        JOIN users u ON u.id = c.instructor_id
+        WHERE c.id = $1
         """,
         course_id,
     )
@@ -379,7 +399,8 @@ async def create_module(
     await check_owner(conn, "course", course_id, user)
     order = body.order_in_course or await next_order(
         conn, "modules", "order_in_course", "course_id", course_id)
-    row = await conn.fetchrow(
+    row = await save_ordered_row(
+        conn,
         """
         INSERT INTO modules (title, description, order_in_course, course_id)
         VALUES ($1, $2, $3, $4) RETURNING *
@@ -418,7 +439,8 @@ async def create_lesson(
     await check_owner(conn, "module", module_id, user)
     order = body.order_in_module or await next_order(
         conn, "lessons", "order_in_module", "module_id", module_id)
-    row = await conn.fetchrow(
+    row = await save_ordered_row(
+        conn,
         """
         INSERT INTO lessons (title, duration, order_in_module, module_id)
         VALUES ($1, $2, $3, $4) RETURNING *
@@ -426,45 +448,6 @@ async def create_lesson(
         body.title, body.duration, order, module_id,
     )
     return dict(row)
-
-@router.get("/lessons/{lesson_id}")
-async def get_my_lesson(
-    lesson_id: int,
-    user: dict = Depends(get_current_user),
-    conn: asyncpg.Connection = Depends(get_conn),
-):
-    """Урок со страницами и секциями для редактора."""
-    await check_owner(conn, "lesson", lesson_id, user)
-    lesson = await conn.fetchrow(
-        "SELECT id, title, duration, order_in_module, module_id FROM lessons WHERE id = $1",
-        lesson_id,
-    )
-    rows = await conn.fetch(
-        """
-        SELECT p.id AS page_id, p.title AS page_title, p.order_in_lesson,
-               s.section_id, s.section_type, s.content, s.video_url, s.section_order
-        FROM lessonpages p
-        LEFT JOIN pagesections s ON s.page_id = p.id
-        WHERE p.lesson_id = $1
-        ORDER BY p.order_in_lesson, s.section_order
-        """,
-        lesson_id,
-    )
-    pages: dict[int, dict] = {}
-    for r in rows:
-        page = pages.setdefault(r["page_id"], {
-            "id": r["page_id"], "title": r["page_title"],
-            "order": r["order_in_lesson"], "sections": [],
-        })
-        if r["section_id"] is not None:
-            page["sections"].append({
-                "id": r["section_id"], "type": r["section_type"],
-                "content": r["content"], "video_url": r["video_url"],
-                "order": r["section_order"],
-            })
-    result = dict(lesson)
-    result["pages"] = list(pages.values())
-    return result
 
 @router.patch("/lessons/{lesson_id}")
 async def update_lesson(
@@ -495,7 +478,8 @@ async def create_page(
     await check_owner(conn, "lesson", lesson_id, user)
     order = body.order_in_lesson or await next_order(
         conn, "lessonpages", "order_in_lesson", "lesson_id", lesson_id)
-    row = await conn.fetchrow(
+    row = await save_ordered_row(
+        conn,
         """
         INSERT INTO lessonpages (title, order_in_lesson, lesson_id)
         VALUES ($1, $2, $3) RETURNING *
@@ -536,7 +520,8 @@ async def create_section(
     await check_owner(conn, "page", page_id, user)
     order = body.section_order or await next_order(
         conn, "pagesections", "section_order", "page_id", page_id)
-    row = await conn.fetchrow(
+    row = await save_ordered_row(
+        conn,
         """
         INSERT INTO pagesections (section_type, content, section_order, video_url, page_id)
         VALUES ($1, $2, $3, $4, $5) RETURNING *
@@ -569,19 +554,7 @@ async def delete_section(
 
 # ---------- тесты ----------
 
-@router.get("/lessons/{lesson_id}/quiz")
-async def get_my_quiz(
-    lesson_id: int,
-    user: dict = Depends(get_current_user),
-    conn: asyncpg.Connection = Depends(get_conn),
-):
-    """Тест для редактора: в отличие от студенческой выдачи, с is_correct."""
-    await check_owner(conn, "lesson", lesson_id, user)
-    quiz = await conn.fetchrow(
-        "SELECT id, title, passing_score FROM quizzes WHERE lesson_id = $1", lesson_id
-    )
-    if quiz is None:
-        raise HTTPException(404, "У этого урока нет теста")
+async def editable_quiz(conn, quiz):
     rows = await conn.fetch(
         "SELECT id, text, points, answers FROM questions WHERE quiz_id = $1 ORDER BY id",
         quiz["id"],
@@ -595,33 +568,50 @@ async def get_my_quiz(
     return result
 
 
-@router.put("/lessons/{lesson_id}/quiz")
-async def upsert_quiz(
+@router.get("/lessons/{lesson_id}/quizzes")
+async def list_my_quizzes(
+    lesson_id: int,
+    user: dict = Depends(get_current_user),
+    conn: asyncpg.Connection = Depends(get_conn),
+):
+    await check_owner(conn, "lesson", lesson_id, user)
+    rows = await conn.fetch(
+        "SELECT id, title, passing_score FROM quizzes WHERE lesson_id = $1 ORDER BY id", lesson_id,
+    )
+    return [await editable_quiz(conn, quiz) for quiz in rows]
+
+
+@router.post("/lessons/{lesson_id}/quizzes", status_code=201)
+async def create_quiz(
     lesson_id: int, body: QuizIn,
     user: dict = Depends(get_current_user),
     conn: asyncpg.Connection = Depends(get_conn),
 ):
-    """Создаёт тест урока или обновляет существующий (у урока один тест)."""
     await check_owner(conn, "lesson", lesson_id, user)
-    async with conn.transaction():
-        quiz_id = await conn.fetchval("SELECT id FROM quizzes WHERE lesson_id = $1", lesson_id)
-        if quiz_id is None:
-            row = await conn.fetchrow(
-                """
-                INSERT INTO quizzes (title, passing_score, lesson_id)
-                VALUES ($1, $2, $3) RETURNING id, title, passing_score
-                """,
-                body.title, body.passing_score, lesson_id,
-            )
-        else:
-            row = await conn.fetchrow(
-                """
-                UPDATE quizzes SET title = $1, passing_score = $2
-                WHERE id = $3 RETURNING id, title, passing_score
-                """,
-                body.title, body.passing_score, quiz_id,
-            )
-    return dict(row)
+    return dict(await conn.fetchrow(
+        "INSERT INTO quizzes (title, passing_score, lesson_id) VALUES ($1, $2, $3) RETURNING *",
+        body.title, body.passing_score, lesson_id,
+    ))
+
+
+@router.patch("/quizzes/{quiz_id}")
+async def update_quiz(
+    quiz_id: int, body: QuizIn,
+    user: dict = Depends(get_current_user),
+    conn: asyncpg.Connection = Depends(get_conn),
+):
+    await check_owner(conn, "quiz", quiz_id, user)
+    return await update_row(conn, "quizzes", "id", quiz_id, body.model_dump())
+
+
+@router.delete("/quizzes/{quiz_id}")
+async def delete_quiz(
+    quiz_id: int,
+    user: dict = Depends(get_current_user),
+    conn: asyncpg.Connection = Depends(get_conn),
+):
+    await check_owner(conn, "quiz", quiz_id, user)
+    return await delete_row(conn, "quizzes", "id", quiz_id)
 
 
 @router.post("/quizzes/{quiz_id}/questions", status_code=201)

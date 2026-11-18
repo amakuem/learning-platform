@@ -1,0 +1,193 @@
+.editor-toolbar,
+.editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.editor-toolbar {
+  margin-block: 16px;
+}
+
+.editor-group {
+  min-width: 0;
+  margin-top: 10px;
+  border: 1px solid #dbe4f0;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.editor-group > summary {
+  padding: 12px 14px;
+  color: #1e3a8a;
+  cursor: pointer;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
+.editor-group[open] > summary {
+  border-bottom: 1px solid #dbe4f0;
+}
+
+.editor-group-content {
+  padding: clamp(8px, 1.5vw, 16px);
+  background: #fff;
+  border-radius: 0 0 10px 10px;
+}
+
+.editor-group-content h3 {
+  margin: 20px 0 6px;
+  font-size: 16px;
+}
+
+.editor-form fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.editor-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.editor-fields label:has(textarea) {
+  grid-column: 1 / -1;
+}
+
+.editor-fields textarea {
+  font: inherit;
+  resize: vertical;
+}
+
+.editor-form .editor-options {
+  margin-bottom: 14px;
+  padding: 12px;
+  border: 1px solid #dbe4f0;
+  border-radius: 8px;
+}
+
+.editor-options legend {
+  font-weight: 600;
+}
+
+.editor-option {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.editor-option > .login-field {
+  flex: 1 1 220px;
+}
+
+.editor-correct {
+  align-self: center;
+}
+
+.editor-action,
+.editor-form > p {
+  margin-top: 10px;
+}
+
+.instructor-toggle {
+  margin-inline-start: 8px;
+}
+
+.course-settings {
+  margin-block: 0 20px;
+}
+
+.inline-resource {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 6px 10px;
+}
+
+.inline-resource-content {
+  min-width: 0;
+}
+
+.inline-resource-tools {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.inline-resource-tools .catalog-button {
+  display: grid;
+  place-items: center;
+  min-width: 25px;
+  min-height: 25px;
+  padding: 0 4px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.learning-outline .editable-lesson-list .inline-resource-tools {
+  margin-top: 6px;
+}
+
+.inline-resource-panel {
+  grid-column: 1 / -1;
+  margin-block: 4px 10px;
+  padding: 12px;
+  border: 1px solid #dbe4f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.inline-resource-panel > .editor-form + button {
+  margin-top: 8px;
+}
+
+.inline-resource-panel > .editor-action {
+  margin-top: 0;
+}
+
+.inline-add {
+  min-width: 0;
+  margin-block: 8px;
+}
+
+.editor-add-row {
+  list-style: none;
+}
+
+.course-modules .editable-lesson-list {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.learning-outline .editable-lesson-list {
+  padding-inline-start: 8px;
+}
+
+.learning-outline section > .inline-resource {
+  margin-top: 14px;
+}
+
+.learning-outline .inline-resource-content > h3 {
+  margin: 4px 0;
+}
+
+.lesson-editor-actions {
+  margin-top: 10px;
+  align-items: flex-start;
+}
+
+.lesson-editor-actions > .inline-add:has(.inline-resource-panel) {
+  flex-basis: 100%;
+}
+
+.lesson-material > .inline-resource + .inline-resource,
+.editor-quiz-questions > .inline-resource + .inline-resource {
+  margin-top: 12px;
+}

@@ -11,8 +11,6 @@ from app.routers.learning import lock_enrollment, refresh_progress
 
 router = APIRouter(tags=["quizzes"])
 
-#endpoints /lessons/{id}/quiz /quizzes/{id}/attempt(post) /quizzes/{id}/attempts(get)
-
 class AttemptIn(BaseModel):
     answers: dict[int, list[int]]	
 
@@ -37,24 +35,6 @@ async def _has_access(conn, user: dict, lesson_id: int) -> bool:
     if row is None:
         raise HTTPException(404, "Lesson not found")
     return row["enrolled"] or row["instructor_id"] == user["id"] or "admin" in user["roles"]
-
-@router.get("/lessons/{lesson_id}/quiz")
-async def get_quiz(
-    lesson_id: int,
-    user: dict = Depends(get_current_user),
-    conn: asyncpg.Connection = Depends(get_conn),
-):
-    if not await _has_access(conn, user, lesson_id):
-        raise HTTPException(403, "Enroll in the course to take the test")
-
-    quiz = await conn.fetchrow(
-        "SELECT id, title, passing_score FROM quizzes WHERE lesson_id = $1 ORDER BY id LIMIT 1", lesson_id
-    )
-    if quiz is None:
-        raise HTTPException(404, "This lesson has no test")
-
-    return await quiz_with_questions(conn, quiz)
-
 
 @router.get("/lessons/{lesson_id}/quizzes")
 async def get_lesson_quizzes(

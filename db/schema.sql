@@ -138,6 +138,12 @@ CREATE TABLE IF NOT EXISTS Enrollments (
     CONSTRAINT unique_user_course UNIQUE (user_id, course_id)
 );
 
+CREATE TABLE IF NOT EXISTS Lesson_Page_Views (
+    enrollment_id BIGINT REFERENCES Enrollments(id) ON DELETE CASCADE,
+    page_id       BIGINT REFERENCES LessonPages(id) ON DELETE CASCADE,
+    PRIMARY KEY (enrollment_id, page_id)
+);
+
 CREATE TABLE IF NOT EXISTS Lesson_Progress (
     id              BIGSERIAL PRIMARY KEY,
     status          VARCHAR(50) DEFAULT 'not_started'

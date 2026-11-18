@@ -2,10 +2,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getLesson, getLessonQuizzes, viewLessonPage, type OutlineLesson } from "../api/learning";
+import { getInstructorQuizzes } from "../api/instructor";
+import { AddResource, InlineResource } from "./InstructorInline";
+import { pageFields, quizFields, sectionFields } from "./instructorFields";
 import LessonQuiz from "./LessonQuiz";
 
 interface Props {
   userId: number;
+  preview?: boolean;
+  editing?: boolean;
   courseId: number;
   lesson: OutlineLesson;
   requestedStep: number;
@@ -23,26 +28,46 @@ function videoSource(value: string | null) {
   }
 }
 
-export default function LessonPlayer({ userId, courseId, lesson, requestedStep, nextLesson, selectStep }: Props) {
+export default function LessonPlayer({ userId, courseId, lesson, requestedStep, nextLesson, selectStep, preview = false, editing = false }: Props) {
   const queryClient = useQueryClient();
   const courseKey = ["learning-course", userId, courseId];
   const materialKey = ["lesson-material", userId, lesson.id];
+  const quizKey = ["lesson-quizzes", userId, lesson.id];
   const material = useQuery({
     queryKey: materialKey,
     queryFn: ({ signal }) => getLesson(lesson.id, signal),
     retry: false,
   });
   const quiz = useQuery({
-    queryKey: ["lesson-quizzes", userId, lesson.id],
+    queryKey: quizKey,
     queryFn: ({ signal }) => getLessonQuizzes(lesson.id, signal),
     retry: false,
   });
+  const quizEditor = useQuery({
+    queryKey: ["instructor-editor", userId, "quizzes", lesson.id],
+    queryFn: ({ signal }) => getInstructorQuizzes(lesson.id, signal),
+    enabled: editing,
+    retry: false,
+  });
+
+  function openPage(id: number) {
+    const latest = queryClient.getQueryData<Awaited<ReturnType<typeof getLesson>>>(materialKey);
+    const index = latest?.pages.findIndex((item) => item.id === id) ?? -1;
+    if (index >= 0) selectStep(index + 1);
+  }
+
+  function openQuiz(id: number) {
+    const latest = queryClient.getQueryData<Awaited<ReturnType<typeof getLessonQuizzes>>>(quizKey);
+    const index = latest?.findIndex((item) => item.id === id) ?? -1;
+    const pageCount = queryClient.getQueryData<Awaited<ReturnType<typeof getLesson>>>(materialKey)?.pages.length ?? 0;
+    if (index >= 0) selectStep(pageCount + index + 1);
+  }
   const pages = material.data?.pages;
   const quizzes = quiz.data;
   const stepCount = Math.max(1, (pages?.length ?? 0) + (quizzes?.length ?? 0));
   const step = Number.isInteger(requestedStep) && requestedStep > 0 ? Math.min(requestedStep, stepCount) : 1;
   const page = pages?.[step - 1];
-  const pageId = pages && quizzes ? page?.id : undefined;
+  const pageId = pages && quizzes && !preview ? page?.id : undefined;
   const viewed = material.data?.viewed_page_ids;
   const alreadyViewed = pageId !== undefined && viewed?.includes(pageId);
   const view = useMutation({
@@ -91,9 +116,9 @@ export default function LessonPlayer({ userId, courseId, lesson, requestedStep, 
         {Array.from({ length: stepCount }, (_, index) => {
           const pageAtStep = materialPages[index];
           const testAtStep = tests[index - materialPages.length];
-          const done = pageAtStep
+          const done = !preview && (pageAtStep
             ? viewed?.includes(pageAtStep.id) || (view.isPending && view.variables === pageAtStep.id)
-            : testAtStep?.passed;
+            : testAtStep?.passed);
           return (
             <button
               className={done ? "catalog-button lesson-step-done" : "catalog-button"}
@@ -106,15 +131,26 @@ export default function LessonPlayer({ userId, courseId, lesson, requestedStep, 
           );
         })}
       </nav>
+      {editing && (
+        <div className="editor-actions lesson-editor-actions">
+          <AddResource label="Добавить страницу" path={`/lessons/${lesson.id}/pages`} fields={pageFields()} onSaved={openPage} />
+          <AddResource label="Добавить тест" path={`/lessons/${lesson.id}/quizzes`} fields={quizFields()} onSaved={openQuiz} />
+        </div>
+      )}
       <p className="lesson-step-count" role="status">Шаг {step} из {stepCount}{activeQuiz && " · Тест"}</p>
       {page && (
         <section className="lesson-material" key={page.id}>
-          <h3>{page.title}</h3>
+          {editing ? (
+            <InlineResource label={`страницу «${page.title}»`} path={`/pages/${page.id}`} fields={pageFields(page)}
+              confirmation="Удалить страницу со всеми её секциями?" onSaved={openPage}>
+              <h3>{page.title}</h3>
+            </InlineResource>
+          ) : <h3>{page.title}</h3>}
           {page.sections.length === 0 && <p>На этой странице пока нет материалов.</p>}
           {page.sections.map((section) => {
             const video = videoSource(section.video_url);
-            return (
-              <div key={section.id}>
+            const content = (
+              <>
                 {section.content && (section.type === "code"
                   ? <pre><code>{section.content}</code></pre>
                   : <p className="lesson-text">{section.content}</p>)}
@@ -123,14 +159,28 @@ export default function LessonPlayer({ userId, courseId, lesson, requestedStep, 
                     ? <video controls preload="metadata" src={video.href} />
                     : <a href={video.href} target="_blank" rel="noreferrer">Открыть видео</a>
                 )}
-              </div>
+              </>
             );
+            return editing ? (
+              <InlineResource key={section.id} label={`секцию ${section.order}`} path={`/sections/${section.id}`}
+                fields={sectionFields(section)} confirmation="Удалить эту секцию?">
+                {content}
+              </InlineResource>
+            ) : <div key={section.id}>{content}</div>;
           })}
+          {editing && <AddResource label="Добавить секцию" path={`/pages/${page.id}/sections`} fields={sectionFields()} />}
         </section>
       )}
       {tests.map((test) => (
         <div key={test.id} hidden={activeQuiz?.id !== test.id}>
-          <LessonQuiz quiz={test} userId={userId} courseId={courseId} lessonId={lesson.id} />
+          {editing && quizEditor.isError && (
+            <div>
+              <p role="alert">Не удалось загрузить настройки теста.</p>
+              <button className="catalog-button" type="button" onClick={() => void quizEditor.refetch()}>Повторить</button>
+            </div>
+          )}
+          <LessonQuiz quiz={test} userId={userId} courseId={courseId} lessonId={lesson.id} preview={preview}
+            editorQuiz={editing ? quizEditor.data?.find((item) => item.id === test.id) : undefined} />
         </div>
       ))}
       {!page && !activeQuiz && <p>В уроке пока нет материалов.</p>}
@@ -145,9 +195,11 @@ export default function LessonPlayer({ userId, courseId, lesson, requestedStep, 
         {step < stepCount ? (
           <button className="catalog-button catalog-apply" type="button" onClick={() => selectStep(step + 1)}>Далее →</button>
         ) : nextLesson ? (
-          <Link className="catalog-button catalog-apply" to={`?lesson=${nextLesson.id}&step=1`}>Следующий урок →</Link>
+          <Link className="catalog-button catalog-apply" to={`?lesson=${nextLesson.id}&step=1${editing ? "&edit=1" : ""}`}>Следующий урок →</Link>
         ) : (
-          <Link className="catalog-button" to="/my-courses">Мои курсы</Link>
+          <Link className="catalog-button" to={preview ? `/instructor/courses/${courseId}${editing ? "?edit=1" : ""}` : "/my-courses"}>
+            {preview ? "К курсу" : "Мои курсы"}
+          </Link>
         )}
       </footer>
     </article>

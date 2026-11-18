@@ -1,19 +1,10 @@
 import asyncpg
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field
 
 from app.db import get_conn
 from app.deps import get_current_user
 
-from typing import Literal
-
 router = APIRouter(tags=["learning"])
-
-#endpoints /courses/{id}/enroll(post) /courses/{id}/enroll(delete) /me/enrollments /lessons/{id} /lessons/{id}/progress
-
-class ProgressIn(BaseModel):
-    status: Literal["in_progress", "completed"]
-    viewed_seconds: int = Field(0, ge=0)
 
 @router.post("/courses/{course_id}/enroll", status_code=201)
 async def enroll(
@@ -258,9 +249,9 @@ async def lock_enrollment(conn, user_id: int, lesson_id: int):
     return enrollment
 
 
-async def refresh_progress(conn, enrollment_id: int, lesson_id: int, viewed_seconds: int = 0):
+async def refresh_progress(conn, enrollment_id: int, lesson_id: int):
     await conn.execute("""
-        INSERT INTO lesson_progress (enrollment_id, lesson_id, status, last_viewed_at, viewed_duration)
+        INSERT INTO lesson_progress (enrollment_id, lesson_id, status, last_viewed_at)
         SELECT e.id, $2,
             CASE WHEN NOT EXISTS (
                 SELECT 1 FROM lessonpages p WHERE p.lesson_id = $2 AND NOT EXISTS (
@@ -275,13 +266,12 @@ async def refresh_progress(conn, enrollment_id: int, lesson_id: int, viewed_seco
                       AND a.attempt_date >= e.enrollment_date
                 )
             ) THEN 'completed' ELSE 'in_progress' END,
-            now(), $3
+            now()
         FROM enrollments e
         WHERE e.id = $1
         ON CONFLICT (enrollment_id, lesson_id) DO UPDATE
-        SET status = EXCLUDED.status, last_viewed_at = now(),
-            viewed_duration = lesson_progress.viewed_duration + EXCLUDED.viewed_duration
-        """, enrollment_id, lesson_id, viewed_seconds)
+        SET status = EXCLUDED.status, last_viewed_at = now()
+        """, enrollment_id, lesson_id)
     await conn.execute("""
         UPDATE enrollments e SET completion_status = CASE WHEN EXISTS (
             SELECT 1 FROM lessons l JOIN modules m ON m.id = l.module_id
@@ -290,16 +280,3 @@ async def refresh_progress(conn, enrollment_id: int, lesson_id: int, viewed_seco
         ) THEN 'in_progress' ELSE 'completed' END
         WHERE e.id = $1
         """, enrollment_id)
-
-
-@router.put("/lessons/{lesson_id}/progress")
-async def update_progress(
-    lesson_id: int,
-    body: ProgressIn,
-    user: dict = Depends(get_current_user),
-    conn: asyncpg.Connection = Depends(get_conn),
-):
-    async with conn.transaction():
-        enrollment = await lock_enrollment(conn, user["id"], lesson_id)
-        await refresh_progress(conn, enrollment, lesson_id, body.viewed_seconds)
-    return {"status": "ok"}

@@ -12,15 +12,24 @@ interface LearningCourse {
   modules: { id: number; title: string; lessons: OutlineLesson[] }[];
 }
 
+export interface LessonPage {
+  id: number;
+  title: string;
+  order: number;
+  sections: {
+    id: number;
+    type: "text" | "code" | null;
+    content: string | null;
+    video_url: string | null;
+    order: number;
+  }[];
+}
+
 interface Lesson {
   id: number;
   title: string;
   viewed_page_ids: number[];
-  pages: {
-    id: number;
-    title: string;
-    sections: { id: number; type: "text" | "code"; content: string | null; video_url: string | null }[];
-  }[];
+  pages: LessonPage[];
 }
 
 export interface LessonQuiz {
