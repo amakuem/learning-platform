@@ -1,6 +1,7 @@
 
 /* Основной фон страницы */
 .platform-page {
+  --page-gutter: clamp(16px, 3vw, 40px);
   min-height: 100svh;
   display: grid;
   grid-template-rows: auto 1fr;
@@ -12,7 +13,7 @@
   align-items: center;
   justify-content: center;
   min-height: 64px;
-  padding: 12px 20px;
+  padding: 12px var(--page-gutter);
   background: #fff;
   border-bottom: 1px solid #e2e8f0;
 }
@@ -27,7 +28,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 30px 20px;
+  padding: 30px var(--page-gutter);
 }
 
 /* Карточка авторизации */

@@ -37,9 +37,9 @@ export default function Course() {
               <span>Записано студентов: {data.students}</span>
             </div>
           </header>
+          {data.description && <p className="course-detail-description">{data.description}</p>}
           <div className="course-detail-grid">
             <div className="course-detail-content">
-              {data.description && <p className="course-detail-description">{data.description}</p>}
               <section className="catalog-state">
                 <h2>Преподаватель</h2>
                 <p>{data.instructor_name}</p>

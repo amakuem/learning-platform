@@ -342,7 +342,8 @@ async def course_stats(
                 JOIN quizzes q ON q.id = qa.quiz_id
                 JOIN lessons l ON l.id = q.lesson_id
                 JOIN modules m ON m.id = l.module_id
-                WHERE m.course_id = e.course_id AND qa.user_id = e.user_id) AS avg_quiz_score
+                WHERE m.course_id = e.course_id AND qa.user_id = e.user_id
+                  AND qa.attempt_date >= e.enrollment_date) AS avg_quiz_score
         FROM enrollments e
         JOIN users u ON u.id = e.user_id
         LEFT JOIN lesson_progress lp ON lp.enrollment_id = e.id

@@ -1,7 +1,6 @@
 .platform-header-wide,
 .catalog-main {
-  width: min(100%, 1120px);
-  margin-inline: auto;
+  width: 100%;
 }
 
 .platform-header-wide,
@@ -63,7 +62,7 @@
 }
 
 .catalog-main {
-  padding: clamp(28px, 6vw, 68px) 20px;
+  padding: clamp(28px, 6vw, 68px) var(--page-gutter);
 }
 
 .catalog-heading {
@@ -206,7 +205,7 @@
 }
 
 .course-detail-description {
-  margin: 0;
+  margin: 0 0 20px;
   color: #475569;
   white-space: pre-line;
   overflow-wrap: anywhere;

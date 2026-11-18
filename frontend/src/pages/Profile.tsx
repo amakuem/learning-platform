@@ -149,7 +149,10 @@ export default function Profile() {
                 {data.date_joined && (
                   <div><dt>Дата регистрации</dt><dd>{dateFormat.format(new Date(data.date_joined))}</dd></div>
                 )}
-                <div><dt>О себе</dt><dd className="profile-bio">{data.bio || "Пока не заполнено"}</dd></div>
+                <div className="profile-bio-field">
+                  <dt>О себе</dt>
+                  <dd className="profile-bio">{data.bio || "Пока не заполнено"}</dd>
+                </div>
               </dl>
             )}
           </section>

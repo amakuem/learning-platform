@@ -1,5 +1,4 @@
 .profile-panel {
-  max-width: 800px;
   border: 1px solid #e2e8f0;
   border-radius: 20px;
   background: #fff;
@@ -71,8 +70,14 @@
 
 .profile-details dl {
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  max-width: 640px;
   gap: 12px;
   margin: 0;
+}
+
+.profile-details dl > .profile-bio-field {
+  grid-column: 1 / -1;
 }
 
 .profile-details dl > div {

@@ -23,7 +23,8 @@ function Login() {
       await login(email, password);
       const courseId = state?.courseId;
       const accountPath = state?.accountPath;
-      const destination = accountPath === "/profile" || accountPath === "/my-courses" ? accountPath : "/";
+      const destination = typeof accountPath === "string" &&
+        /^(?:\/profile|\/my-courses|\/learn\/[1-9]\d*)$/.test(accountPath) ? accountPath : "/";
       navigate(Number.isSafeInteger(courseId) && courseId > 0 ? `/courses/${courseId}` : destination, { replace: true });
     } catch {
       setError("Неверный email или пароль");

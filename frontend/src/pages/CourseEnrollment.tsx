@@ -23,6 +23,11 @@ function StudentEnrollment({ courseId, userId }: { courseId: number; userId: num
         if (status !== (enroll ? 409 : 404)) throw error;
       }
     },
+    onSuccess: () => {
+      queryClient.removeQueries({ queryKey: ["learning-course", userId, courseId] });
+      queryClient.removeQueries({ queryKey: ["lesson-material", userId] });
+      queryClient.removeQueries({ queryKey: ["lesson-quizzes", userId] });
+    },
     onSettled: () => Promise.all([
       queryClient.invalidateQueries({ queryKey: enrollmentKey }),
       queryClient.invalidateQueries({ queryKey: ["course", courseId] }),

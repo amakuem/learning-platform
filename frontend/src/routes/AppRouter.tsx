@@ -6,6 +6,7 @@ import Login from "../pages/login";
 import Register from "../pages/register";
 import Profile from "../pages/Profile";
 import MyCourses from "../pages/MyCourses";
+import Learning from "../pages/Learning";
 import AccountRoute from "./AccountRoute";
 
 function AppRouter() {
@@ -18,6 +19,7 @@ function AppRouter() {
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<AccountRoute><Profile /></AccountRoute>} />
         <Route path="/my-courses" element={<AccountRoute><MyCourses /></AccountRoute>} />
+        <Route path="/learn/:courseId" element={<AccountRoute><Learning /></AccountRoute>} />
       </Routes>
     </BrowserRouter>
   );

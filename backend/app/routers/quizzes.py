@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from app.db import get_conn
 from app.deps import get_current_user
+from app.routers.learning import lock_enrollment, refresh_progress
 
 router = APIRouter(tags=["quizzes"])
 
@@ -47,11 +48,38 @@ async def get_quiz(
         raise HTTPException(403, "Enroll in the course to take the test")
 
     quiz = await conn.fetchrow(
-        "SELECT id, title, passing_score FROM quizzes WHERE lesson_id = $1", lesson_id
+        "SELECT id, title, passing_score FROM quizzes WHERE lesson_id = $1 ORDER BY id LIMIT 1", lesson_id
     )
     if quiz is None:
         raise HTTPException(404, "This lesson has no test")
 
+    return await quiz_with_questions(conn, quiz)
+
+
+@router.get("/lessons/{lesson_id}/quizzes")
+async def get_lesson_quizzes(
+    lesson_id: int,
+    user: dict = Depends(get_current_user),
+    conn: asyncpg.Connection = Depends(get_conn),
+):
+    if not await _has_access(conn, user, lesson_id):
+        raise HTTPException(403, "Enroll in the course to take the test")
+    quizzes = await conn.fetch("""
+        SELECT q.id, q.title, q.passing_score, EXISTS (
+            SELECT 1 FROM quiz_attempts a
+            WHERE a.quiz_id = q.id AND a.user_id = e.user_id AND a.is_passed
+              AND a.attempt_date >= e.enrollment_date
+        ) AS passed
+        FROM quizzes q
+        JOIN lessons l ON l.id = q.lesson_id
+        JOIN modules m ON m.id = l.module_id
+        LEFT JOIN enrollments e ON e.course_id = m.course_id AND e.user_id = $2
+        WHERE q.lesson_id = $1 ORDER BY q.id
+        """, lesson_id, user["id"])
+    return [await quiz_with_questions(conn, quiz) for quiz in quizzes]
+
+
+async def quiz_with_questions(conn, quiz):
     rows = await conn.fetch(
         "SELECT id, text, points, answers FROM questions WHERE quiz_id = $1 ORDER BY id",
         quiz["id"],
@@ -118,14 +146,17 @@ async def submit_attempt(
     score = Decimal(earned_points * 100 / total_points).quantize(Decimal("0.01"))
     is_passed = score >= quiz["passing_score"]
 
-    attempt = await conn.fetchrow(
-        """
-        INSERT INTO quiz_attempts (user_id, quiz_id, score, is_passed)
-        VALUES ($1, $2, $3, $4)
-        RETURNING id, attempt_date
-        """,
-        user["id"], quiz_id, score, is_passed,
-    )
+    async with conn.transaction():
+        enrollment = await lock_enrollment(conn, user["id"], quiz["lesson_id"])
+        attempt = await conn.fetchrow(
+            """
+            INSERT INTO quiz_attempts (user_id, quiz_id, score, is_passed, attempt_date)
+            VALUES ($1, $2, $3, $4, clock_timestamp())
+            RETURNING id, attempt_date
+            """,
+            user["id"], quiz_id, score, is_passed,
+        )
+        await refresh_progress(conn, enrollment, quiz["lesson_id"])
     return {
         "attempt_id": attempt["id"],
         "score": score,

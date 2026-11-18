@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import { getInstructorCourses, getMyEnrollments } from "../api/courses";
 import { useAuth } from "../context/AuthContext";
 import PageLayout from "./PageLayout";
@@ -9,10 +10,11 @@ interface CourseListProps {
   emptyMessage: string;
   items?: { id: number; title: string; status?: string }[];
   isError: boolean;
+  learning?: boolean;
   refetch: () => unknown;
 }
 
-function CourseList({ heading, emptyMessage, items, isError, refetch }: CourseListProps) {
+function CourseList({ heading, emptyMessage, items, isError, learning, refetch }: CourseListProps) {
   return (
     <section className="my-courses-section" aria-label={heading}>
       <h2>{heading}</h2>
@@ -28,7 +30,7 @@ function CourseList({ heading, emptyMessage, items, isError, refetch }: CourseLi
         <ul className="course-grid">
           {items.map(({ id, title, status }) => (
             <li className="course-card" key={id}>
-              <h3>{title}</h3>
+              <h3>{learning ? <Link className="course-card-link" to={`/learn/${id}`}>{title}</Link> : title}</h3>
               {status && <span className="course-category">{status}</span>}
             </li>
           ))}
@@ -60,6 +62,7 @@ export default function MyCourses() {
       <div className="catalog-heading"><h1>Мои курсы</h1></div>
       {isStudent && (
         <CourseList
+          learning
           heading="Курсы, на которые вы записаны"
           emptyMessage="Вы пока не записаны ни на один курс."
           items={studentCourses.data?.map(({ course_id, title }) => ({ id: course_id, title }))}
