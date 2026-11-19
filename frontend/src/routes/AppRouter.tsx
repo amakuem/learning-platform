@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Admin, { AdminUsers, AdminLogs, AdminDiscussions } from "../pages/Admin";
 
 import Home from "../pages/home";
 import Course from "../pages/Course";
@@ -14,6 +15,12 @@ function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/admin" element={<AccountRoute><Admin /></AccountRoute>}>
+          <Route index element={<Navigate to="users" replace />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="logs" element={<AdminLogs />} />
+          <Route path="discussions" element={<AdminDiscussions />} />
+        </Route>
         <Route path="/" element={<Home />} />
         <Route path="/courses/:courseId" element={<Course />} />
         <Route path="/login" element={<Login />} />

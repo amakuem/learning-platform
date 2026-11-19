@@ -163,7 +163,7 @@ async def delete_discussion(
     if row is None:
         raise HTTPException(404, "Discussion not found")
 
-    if row["user_id"] != user["id"]:
+    if row["user_id"] != user["id"] and "admin" not in user["roles"]:
         raise HTTPException(
             403,
             "You can delete only your own messages",

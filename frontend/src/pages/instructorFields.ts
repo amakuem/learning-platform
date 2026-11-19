@@ -29,7 +29,6 @@ export const sectionFields = (section?: LessonPage["sections"][number]): EditorF
     choices: [{ value: "text", label: "Текст" }, { value: "code", label: "Код" }] },
   order("section_order", section?.order),
   { name: "content", label: "Содержимое", kind: "textarea", optional: true, value: section?.content },
-  ...(section ? [{ name: "video_url", label: "Ссылка на видео", optional: true, value: section.video_url, maxLength: 500 }] : []),
 ];
 export const quizFields = (quiz?: Pick<InstructorQuiz, "title" | "passing_score">): EditorField[] => [
   titleField(quiz?.title),

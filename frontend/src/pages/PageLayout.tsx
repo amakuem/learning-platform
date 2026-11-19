@@ -16,6 +16,7 @@ function CatalogNavigation() {
             <NavLink to="/my-courses">Мои курсы</NavLink>
           )}
           <NavLink to="/profile">Профиль</NavLink>
+          {user.roles.includes("admin") && <NavLink to="/admin">Админ-панель</NavLink>}
           <button type="button" onClick={logout}>Выйти</button>
         </>
       ) : (
